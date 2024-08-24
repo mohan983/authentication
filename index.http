@@ -2,7 +2,7 @@ post http://localhost:4000/users/
 Content-Type: application/json
 
 {
-    "Username":"mohan183",
+    "Username":"mohan983",
     "Password":"Mohan@983",
     "Name":"Jaganmohan",
     "Gender":"Male"
