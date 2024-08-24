@@ -31,51 +31,67 @@ initializeDBAndServer();
 
 app.post('/users/', async(request,response)=>{
     const {Username,Password,Name,Gender}=request.body;
-    const hashedPassword= await bcrypt.hash(Password,10);
-    const selectUserQuery=`select * from user where Username='${Username}'`;
-    const dbUser=db.query(selectUserQuery,function(error,results){
-        if(error){
-            throw error;
-        }
-        response.send(results);
-    });
-    if(dbUser===undefined){
-        const createUserQuery=`insert into 
-        user (Username,Password,Name,Gender) 
-        values ('${Username}','${hashedPassword}','${Name}','${Gender}')`;
-        db.query(createUserQuery,function(error,results){
+    if(!Password){
+        response.status(400).send('!Password is Required');
+        return;
+    }
+    try{
+        const hashedPassword= await bcrypt.hash(Password,10);
+        const selectUserQuery=`select * from user where username='${Username}'`;
+        db.query(selectUserQuery,function(error,results){
             if(error){
                 throw error;
             }
-            response.send('Registered Successfully')
-        })
-    }else{
-        response.status(400);
-        response.send('Username Already exist');
+            if(results.length===0){
+                const createUserQuery=`insert into 
+                user (Username,Password,Name,Gender) 
+                values ('${Username}','${hashedPassword}','${Name}','${Gender}')`;
+                db.query(createUserQuery,function(error,results){
+                    if(error){
+                        throw error;
+                    }
+                    response.send('Registered Successfully')
+                })
+            }else{
+                response.status(400);
+                response.send('Username Already exist');
+            }
+        });
+    }catch(e){
+        console.error(e.message);
+        response.status(500).send('Internal server error')
     }
 });
 
 //Login User API
 
 app.post("/login", async (request, response) => {
-    const { username, password } = request.body;
-    const selectUserQuery = `SELECT * FROM user WHERE username = '${username}'`;
-    const dbUser=db.query(selectUserQuery,function(error,results){
-        if(error){
-            throw error;
-        }
-        response.send(results);
-    });
-    if (dbUser === undefined) {
-        response.status(400);
-        response.send("Invalid User");
-    } else {
-        const isPasswordMatched = await bcrypt.compare(password, dbUser.password);
-        if (isPasswordMatched === true) {
-            response.send("Login Success!");
-        } else {
-            response.status(400);
-            response.send("Invalid Password");
-        }
+    const { Username, Password } = request.body;
+    if(!Password){
+        response.status(400).send('!Password is Required');
+        return;
+    }
+    try {
+        const selectUserQuery = `SELECT * FROM user WHERE Username = '${Username}'`;
+        db.query(selectUserQuery,async(error,results)=>{
+            if(error){
+                throw error;
+            }
+            if (results.length===0) {
+                response.status(400);
+                response.send("Invalid User");
+            } else {
+                const isPasswordMatched = await bcrypt.compare(Password, results.Password);
+                if (isPasswordMatched === true) {
+                    response.send("Login Success!");
+                } else {
+                    response.status(400);
+                    response.send("Invalid Password");
+                }
+            }
+        });
+    } catch (e) {
+        console.error(e.message);
+        response.status(500).send('Internal server error');
     }
 });

@@ -1,10 +1,19 @@
 post http://localhost:4000/users/
-Content-Type: 'application/json'
+Content-Type: application/json
 
 {
-    "Username":"mohan983",
+    "Username":"mohan183",
     "Password":"Mohan@983",
     "Name":"Jaganmohan",
     "Gender":"Male"
+}
+###
+
+post http://localhost:4000/login/
+Content-Type: application/json
+
+{
+    "Username":"mohan983",
+    "Password":"Mohan@983"
 }
 ###
