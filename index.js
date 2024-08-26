@@ -13,7 +13,7 @@ const initializeDBAndServer=async()=>{
             host:'localhost',
             user:'root',
             password:'Mohan@983',
-            database:'5_users_database',
+            database:'2_querying_with_sql',
             multipleStatements:true
         });
         app.listen(4000,()=>{
